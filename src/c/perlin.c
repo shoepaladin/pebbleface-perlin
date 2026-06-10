@@ -55,7 +55,7 @@ TextLayer *battery_text_layer;
 static Layer *steps_layer;
 static int current_steps = 0;
 
-static int s_random = 20;
+static int s_random = 0;   // BG1 is loaded at init
 static int temp_random;
 
 static void steps_update_proc(Layer *layer, GContext *ctx) {
@@ -105,72 +105,38 @@ static void update_steps(void) {
 }
 
 
-void theme_choice() {	
-		
-			if(s_random == 19){
-			s_random = 0;
-		} else {
+// 25 rotating backgrounds. BG21-BG25 are new procedurally generated
+// perlin-noise themes (see tools/generate_backgrounds.py).
+static const uint32_t BG_RESOURCES[] = {
+  RESOURCE_ID_IMAGE_BG1,  RESOURCE_ID_IMAGE_BG2,  RESOURCE_ID_IMAGE_BG3,
+  RESOURCE_ID_IMAGE_BG4,  RESOURCE_ID_IMAGE_BG5,  RESOURCE_ID_IMAGE_BG6,
+  RESOURCE_ID_IMAGE_BG7,  RESOURCE_ID_IMAGE_BG8,  RESOURCE_ID_IMAGE_BG9,
+  RESOURCE_ID_IMAGE_BG10, RESOURCE_ID_IMAGE_BG11, RESOURCE_ID_IMAGE_BG12,
+  RESOURCE_ID_IMAGE_BG13, RESOURCE_ID_IMAGE_BG14, RESOURCE_ID_IMAGE_BG15,
+  RESOURCE_ID_IMAGE_BG16, RESOURCE_ID_IMAGE_BG17, RESOURCE_ID_IMAGE_BG18,
+  RESOURCE_ID_IMAGE_BG19, RESOURCE_ID_IMAGE_BG20, RESOURCE_ID_IMAGE_BG21,
+  RESOURCE_ID_IMAGE_BG22, RESOURCE_ID_IMAGE_BG23, RESOURCE_ID_IMAGE_BG24,
+  RESOURCE_ID_IMAGE_BG25
+};
 
-			temp_random = rand() % 19;
+void theme_choice() {
+  temp_random = rand() % (int)ARRAY_LENGTH(BG_RESOURCES);
+  while (temp_random == s_random) {
+    temp_random = rand() % (int)ARRAY_LENGTH(BG_RESOURCES);
+  }
+  s_random = temp_random;
 
-			while(temp_random == s_random){
-			    temp_random = rand() % 19;
-		    }
+  if (background_image) {
+    gbitmap_destroy(background_image);
+    background_image = NULL;
+  }
 
-		    s_random = temp_random;
+  background_image = gbitmap_create_with_resource(BG_RESOURCES[s_random]);
 
-	    if (background_image) {
-		gbitmap_destroy(background_image);
-		background_image = NULL;
-    }
-
-		   if(s_random == 0){
-			   background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG1);
-         } else if(s_random == 1){
-				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG2);
-         } else if(s_random == 2){
-				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG3);
-         } else if(s_random == 3){
-				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG4);
-         } else if(s_random == 4){
-				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG5);
-         } else if(s_random == 5){
-				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG6);
-         } else if(s_random == 6){
- 				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG7);
-         } else if(s_random == 7){
- 				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG8);
-         } else if(s_random == 8){
- 				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG9);
-         } else if(s_random == 9){
- 				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG10);
-         } else if(s_random == 10){
- 				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG11);
-         } else if(s_random == 11){
- 				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG12);
-         } else if(s_random == 12){
- 				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG13);
-         } else if(s_random == 13){
- 				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG14);
-         } else if(s_random == 14){
- 				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG15);
-         } else if(s_random == 15){
- 				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG16);
-         } else if(s_random == 16){
- 				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG17);
-         } else if(s_random == 17){
- 				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG18);
-         } else if(s_random == 18){
- 				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG19);
-         } else if(s_random == 19){
- 				background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG20);
-		 }
-
-	   if (background_image != NULL) {
-		bitmap_layer_set_bitmap(background_layer, background_image);
-		layer_set_hidden(bitmap_layer_get_layer(background_layer), false);
-		layer_mark_dirty(bitmap_layer_get_layer(background_layer));
-    }		
+  if (background_image != NULL) {
+    bitmap_layer_set_bitmap(background_layer, background_image);
+    layer_set_hidden(bitmap_layer_get_layer(background_layer), false);
+    layer_mark_dirty(bitmap_layer_get_layer(background_layer));
   }
 }
 

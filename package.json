@@ -232,6 +232,56 @@
                     "type": "bitmap"
                 },
                 {
+                    "file": "images/perlin-gen-0001.png",
+                    "name": "IMAGE_BG21",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0002.png",
+                    "name": "IMAGE_BG22",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0003.png",
+                    "name": "IMAGE_BG23",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0004.png",
+                    "name": "IMAGE_BG24",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0005.png",
+                    "name": "IMAGE_BG25",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
                     "characterRegex": "[0-9]",
                     "file": "fonts/LECO_1976-Regular.ttf",
                     "name": "FONT_LECO_62",

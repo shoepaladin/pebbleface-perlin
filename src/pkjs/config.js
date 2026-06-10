@@ -95,6 +95,19 @@ module.exports = [
         "messageKey": "randomtime",
         "label": "Shuffle background when saving",
         "defaultValue": false
+      },
+      {
+        "type": "radiogroup",
+        "messageKey": "refreshhours",
+        "label": "Change background every",
+        "defaultValue": "1",
+        "options": [
+          { "label": "1 hour",   "value": "1"  },
+          { "label": "5 hours",  "value": "5"  },
+          { "label": "15 hours", "value": "15" },
+          { "label": "30 hours", "value": "30" },
+          { "label": "60 hours", "value": "60" }
+        ]
       }
     ]
   },

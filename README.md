@@ -32,6 +32,8 @@ no external configuration page is needed:
 - Bluetooth disconnect vibration (default on)
 - Hourly vibration (default off)
 - Shuffle background when saving settings
+- Background refresh interval: every 1, 5, 15, 30 or 60 hours (default 1,
+  new in v1.4.0)
 
 ## Backgrounds
 
@@ -41,6 +43,13 @@ artwork (rainbow arrows, teal boxes, warm flow strokes, contour bands and
 pastel stitches), rendered natively for every platform size by
 [`tools/generate_backgrounds.py`](tools/generate_backgrounds.py). The script
 is seeded, so the shipped artwork can be regenerated exactly.
+
+## v1.4.0 changes
+
+- Configurable background refresh interval (1/5/15/30/60 hours) from the
+  settings page; previously the background always changed hourly.
+- Larger date text: the date now uses a dedicated 20pt LECO font (battery
+  percentage stays at 14pt), with layout frames adjusted on every platform.
 
 ## v1.3.0 changes
 

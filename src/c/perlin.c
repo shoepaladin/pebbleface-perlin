@@ -21,6 +21,8 @@ static int showbatt;
 static int randomtime;
 static int showsteps;
 static int maxsteps;
+static int refreshhours;
+static int hours_since_refresh = 0;
 
 static bool appStarted = false;
 
@@ -31,7 +33,8 @@ enum {
   BATT_KEY = 0x3,
   RANDOMTIME_KEY = 0x4,
   STEPS_KEY = 0x5,
-  MAXSTEPS_KEY = 0x6
+  MAXSTEPS_KEY = 0x6,
+  REFRESH_KEY = 0x7
 };
 
 Window *window;
@@ -43,6 +46,7 @@ TextLayer *layer_time_min_text;
 
 static GFont time_font;
 static GFont date_font;
+static GFont batt_font;
 
 static GBitmap *background_image;
 static BitmapLayer *background_layer;
@@ -204,6 +208,22 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
     persist_write_int(MAXSTEPS_KEY, maxsteps);
     layer_mark_dirty(steps_layer);
   }
+
+  t = dict_find(iter, REFRESH_KEY);
+  if (t) {
+    int v;
+    // Clay sends radiogroup values as CStrings; tolerate either.
+    if (t->type == TUPLE_CSTRING) {
+      v = atoi(t->value->cstring);
+    } else {
+      v = (int)t->value->int32;
+    }
+    if (v < 1) v = 1;
+    if (v > 60) v = 60;
+    refreshhours = v;
+    persist_write_int(REFRESH_KEY, refreshhours);
+    hours_since_refresh = 0;   // restart the countdown from now
+  }
 }
 
 static void load_persisted_settings(void) {
@@ -215,6 +235,8 @@ static void load_persisted_settings(void) {
   showsteps     = persist_exists(STEPS_KEY) ? persist_read_bool(STEPS_KEY) : 1;
   maxsteps      = persist_exists(MAXSTEPS_KEY) ? persist_read_int(MAXSTEPS_KEY) : 10000;
   if (maxsteps < 100) maxsteps = 10000;
+  refreshhours  = persist_exists(REFRESH_KEY) ? persist_read_int(REFRESH_KEY) : 1;
+  if (refreshhours < 1 || refreshhours > 60) refreshhours = 1;
 }
 
 void update_battery_state(BatteryChargeState charge_state) {
@@ -308,7 +330,13 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
 
 if (units_changed & HOUR_UNIT) {
     hourvibe(tick_time);
-	theme_choice();
+
+    // change the background every refreshhours hours
+    hours_since_refresh++;
+    if (hours_since_refresh >= refreshhours) {
+      hours_since_refresh = 0;
+      theme_choice();
+    }
 }
 	
 if (units_changed & MINUTE_UNIT) { 	
@@ -342,7 +370,8 @@ void handle_init(void) {
 	// resources
 
 	time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_LECO_62));
-	date_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_LECO_14));
+	date_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_LECO_20));
+	batt_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_LECO_14));
 
     // layer position and alignment
 #if defined(PBL_PLATFORM_EMERY)
@@ -350,7 +379,7 @@ void handle_init(void) {
     layer_time_hour_text = text_layer_create(GRect(0, 24, 200, 70));
 	layer_time_min_text = text_layer_create(GRect(0, 100, 200, 70));
 
-    layer_date_text = text_layer_create(GRect(30, 198, 140, 22));
+    layer_date_text = text_layer_create(GRect(20, 194, 160, 28));
     battery_text_layer = text_layer_create(GRect(70, 6, 60, 20));
 
 	steps_layer = layer_create(GRect(0, 182, 200, 8));
@@ -359,19 +388,19 @@ void handle_init(void) {
     layer_time_hour_text = text_layer_create(GRect(0, 16, 182, 64));
 	layer_time_min_text = text_layer_create(GRect(0, 73, 182, 64));
 
-    layer_date_text = text_layer_create(GRect(0, 141, 178, 18));
+    layer_date_text = text_layer_create(GRect(0, 143, 178, 28));
     battery_text_layer = text_layer_create(GRect(0, 11, 178, 18));
 
-	steps_layer = layer_create(GRect(0, 137, 180, 4));
+	steps_layer = layer_create(GRect(0, 138, 180, 4));
 
 #else
     layer_time_hour_text = text_layer_create(GRect(0, 15, 146, 64));
 	layer_time_min_text = text_layer_create(GRect(0, 72, 146, 64));
 
-    layer_date_text = text_layer_create(GRect(22, 145, 106, 18));
+    layer_date_text = text_layer_create(GRect(8, 142, 128, 26));
     battery_text_layer = text_layer_create(GRect(50, 5, 36, 18));
 
-	steps_layer = layer_create(GRect(0, 138, 144, 5));
+	steps_layer = layer_create(GRect(0, 137, 144, 4));
 
 #endif
 
@@ -389,7 +418,7 @@ void handle_init(void) {
 
     text_layer_set_font(layer_time_hour_text, time_font);
     text_layer_set_font(layer_date_text, date_font);
-    text_layer_set_font(battery_text_layer, date_font);
+    text_layer_set_font(battery_text_layer, batt_font);
     text_layer_set_font(layer_time_min_text, time_font);
 
 	text_layer_set_text_alignment(layer_time_hour_text, GTextAlignmentCenter);
@@ -450,6 +479,7 @@ void handle_deinit(void) {
 	
   fonts_unload_custom_font(time_font);
   fonts_unload_custom_font(date_font);
+  fonts_unload_custom_font(batt_font);
 	
   window_destroy(window);
 

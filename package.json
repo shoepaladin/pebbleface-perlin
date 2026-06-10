@@ -17,6 +17,7 @@
             "hourlyvibe": 2,
             "maxsteps": 6,
             "randomtime": 4,
+            "refreshhours": 7,
             "showbatt": 3,
             "showdate": 0,
             "showsteps": 5
@@ -292,6 +293,11 @@
                     "file": "fonts/LECO_1976-Regular.ttf",
                     "name": "FONT_LECO_14",
                     "type": "font"
+                },
+                {
+                    "file": "fonts/LECO_1976-Regular.ttf",
+                    "name": "FONT_LECO_20",
+                    "type": "font"
                 }
             ]
         },
@@ -306,5 +312,5 @@
             "watchface": true
         }
     },
-    "version": "1.3.0"
+    "version": "1.4.0"
 }

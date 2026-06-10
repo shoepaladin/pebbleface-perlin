@@ -33,8 +33,19 @@ no external configuration page is needed:
 - Hourly vibration (default off)
 - Shuffle background when saving settings
 
+## Backgrounds
+
+The face rotates through 25 backgrounds. BG1–BG20 are the original hand-made
+themes. **BG21–BG25 are new in v1.3.0**: procedurally generated perlin-noise
+artwork (rainbow arrows, teal boxes, warm flow strokes, contour bands and
+pastel stitches), rendered natively for every platform size by
+[`tools/generate_backgrounds.py`](tools/generate_backgrounds.py). The script
+is seeded, so the shipped artwork can be regenerated exactly.
+
 ## v1.3.0 changes
 
+- Added five new procedurally generated perlin-noise backgrounds (BG21–BG25)
+  with a reproducible generator script in `tools/`.
 - Added Pebble Time 2 (emery) support with larger time/date layout frames for
   the 200x228 screen, plus 200x228 upscaled background artwork (`~emery`
   resource variants).

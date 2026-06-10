@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
-"""Generate the procedural perlin-noise backgrounds added in v1.3.0
-(IMAGE_BG21 .. IMAGE_BG25).
+"""Generate all 25 procedural perlin-noise backgrounds (IMAGE_BG1 .. IMAGE_BG25).
 
-Each theme is rendered natively for every target platform:
+Since v1.5.0 every background is procedurally generated (the original
+hand-made art was replaced in favor of these). Five glyph styles, each in
+five palette variants, rendered natively for every target platform:
+
   basalt 144x168, chalk 180x180, emery 200x228
 
-The output matches the hand-made originals' look: a white canvas covered in
-small colored glyphs/strokes whose hue, density and orientation are driven by
-a 2D Perlin noise field. Runs are seeded, so re-running the script reproduces
-the shipped artwork exactly.
+Each image is quantized to at most 16 colors. That is deliberate: the SDK
+then packs them as 4-bit palettized GBitmaps, which the watch code can
+invert in place via gbitmap_get_palette() when Bluetooth disconnects.
+
+A 2D Perlin noise field drives glyph hue, density and orientation. Runs are
+seeded, so re-running the script reproduces the shipped artwork exactly.
 
 Usage:  python3 tools/generate_backgrounds.py   (writes into resources/images/)
 Needs:  pillow, numpy
@@ -29,6 +33,8 @@ PLATFORMS = {
     "chalk": (180, 180),
     "emery": (200, 228),
 }
+
+MAX_COLORS = 16   # keep 4-bit palettized so the watch can palette-invert
 
 
 # ---------------------------------------------------------------------------
@@ -66,13 +72,16 @@ def perlin_grid(width, height, scale, rng):
     return (n - n.min()) / (n.max() - n.min())  # normalized 0..1
 
 
-def hue_color(h, s=0.85, v=0.85):
-    r, g, b = colorsys.hsv_to_rgb(h % 1.0, s, v)
-    return (int(r * 255), int(g * 255), int(b * 255))
+def make_pal(h0, span, s=0.85, v=0.85):
+    """Map a noise value 0..1 to an RGB color along a hue ramp."""
+    def pal(n):
+        r, g, b = colorsys.hsv_to_rgb((h0 + n * span) % 1.0, s, v)
+        return (int(r * 255), int(g * 255), int(b * 255))
+    return pal
 
 
 # ---------------------------------------------------------------------------
-# Glyph primitives, in the spirit of the original hand-made art.
+# Glyph primitives.
 # ---------------------------------------------------------------------------
 def glyph_arrow(d, x, y, size, color, angle):
     x2 = x + size * math.cos(angle)
@@ -107,10 +116,9 @@ def glyph_zig(d, x, y, size, color, angle):
 
 
 # ---------------------------------------------------------------------------
-# The five new themes. Each fills a white canvas with noise-driven glyphs.
+# The five styles. Each fills a white canvas with noise-driven glyphs.
 # ---------------------------------------------------------------------------
-def theme_rainbow_arrows(d, w, h, noise, rng):
-    """BG21: rainbow arrows whose hue and direction follow the noise field."""
+def style_arrows(d, w, h, noise, rng, pal):
     step = 13
     for gy in range(4, h, step):
         for gx in range(4, w, step):
@@ -118,32 +126,29 @@ def theme_rainbow_arrows(d, w, h, noise, rng):
             if n < 0.18:
                 continue
             jx, jy = gx + rng.uniform(-3, 3), gy + rng.uniform(-3, 3)
-            glyph_arrow(d, jx, jy, 9, hue_color(n), n * 4 * math.pi)
+            glyph_arrow(d, jx, jy, 9, pal(n), n * 4 * math.pi)
 
 
-def theme_teal_boxes(d, w, h, noise, rng):
-    """BG22: nested teal/blue box outlines, denser where the noise is high."""
+def style_boxes(d, w, h, noise, rng, pal):
     step = 11
     for gy in range(2, h, step):
         for gx in range(2, w, step):
             n = noise[min(gy, h - 1), min(gx, w - 1)]
             if n < 0.30:
                 continue
-            c = hue_color(0.45 + n * 0.25, 0.9, 0.55 + n * 0.4)
             size = 4 + n * 8
-            glyph_box(d, gx + rng.uniform(-2, 2), gy + rng.uniform(-2, 2), size, c)
+            glyph_box(d, gx + rng.uniform(-2, 2), gy + rng.uniform(-2, 2), size, pal(n))
             if n > 0.72:
-                glyph_box(d, gx + 3, gy + 3, size - 5, c)
+                glyph_box(d, gx + 3, gy + 3, size - 5, pal(n))
 
 
-def theme_warm_flow(d, w, h, noise, rng):
-    """BG23: warm flow-field strokes following the noise gradient."""
+def style_flow(d, w, h, noise, rng, pal):
     for _ in range(int(w * h / 55)):
         x, y = rng.uniform(0, w), rng.uniform(0, h)
         n = noise[int(min(y, h - 1)), int(min(x, w - 1))]
         if n < 0.15:
             continue
-        c = hue_color(0.02 + n * 0.13, 0.9, 0.95)  # red -> orange -> yellow
+        c = pal(n)
         a = n * 6 * math.pi
         pts = [(x, y)]
         for _ in range(3):
@@ -155,49 +160,76 @@ def theme_warm_flow(d, w, h, noise, rng):
         d.line(pts, fill=c, width=2)
 
 
-def theme_contour_bands(d, w, h, noise, rng):
-    """BG24: thin multicolor contour lines of the noise field (marble)."""
+def style_contours(d, w, h, noise, rng, pal):
     levels = 14
     px = (noise * levels).astype(int)
     for y in range(h - 1):
         for x in range(w - 1):
             if px[y, x] != px[y, x + 1] or px[y, x] != px[y + 1, x]:
-                d.point((x, y), fill=hue_color(px[y, x] / levels))
+                d.point((x, y), fill=pal(px[y, x] / levels))
 
 
-def theme_pastel_stitch(d, w, h, noise, rng):
-    """BG25: pastel crosses + zigzag stitches on a loose grid."""
+def style_stitch(d, w, h, noise, rng, pal):
     step = 12
     for gy in range(4, h, step):
         for gx in range(4, w, step):
             n = noise[min(gy, h - 1), min(gx, w - 1)]
             if n < 0.22:
                 continue
-            c = hue_color(n, 0.55, 0.95)
+            c = pal(n)
             if n > 0.6:
                 glyph_zig(d, gx, gy, 9, c, n * 4 * math.pi)
             else:
                 glyph_cross(d, gx + rng.uniform(-2, 2), gy + rng.uniform(-2, 2), 7, c)
 
 
-THEMES = [
-    ("perlin-gen-0001", theme_rainbow_arrows, 30, 2101),
-    ("perlin-gen-0002", theme_teal_boxes, 38, 2202),
-    ("perlin-gen-0003", theme_warm_flow, 34, 2303),
-    ("perlin-gen-0004", theme_contour_bands, 42, 2404),
-    ("perlin-gen-0005", theme_pastel_stitch, 36, 2505),
+STYLES = [
+    ("arrows", style_arrows, 30),
+    ("boxes", style_boxes, 38),
+    ("flow", style_flow, 34),
+    ("contours", style_contours, 42),
+    ("stitch", style_stitch, 36),
 ]
+
+# Five palette variants per style; (h0, span, s, v).
+PALETTES = {
+    "arrows":   [(0.00, 1.00, 0.85, 0.85), (0.50, 0.30, 0.85, 0.80),
+                 (0.93, 0.22, 0.90, 0.90), (0.68, 0.25, 0.80, 0.80),
+                 (0.20, 0.28, 0.85, 0.75)],
+    "boxes":    [(0.45, 0.25, 0.90, 0.80), (0.93, 0.14, 0.85, 0.85),
+                 (0.58, 0.22, 0.85, 0.80), (0.06, 0.14, 0.90, 0.90),
+                 (0.33, 0.20, 0.85, 0.75)],
+    "flow":     [(0.02, 0.13, 0.90, 0.95), (0.55, 0.15, 0.85, 0.85),
+                 (0.83, 0.14, 0.75, 0.95), (0.16, 0.16, 0.85, 0.85),
+                 (0.58, 0.10, 0.45, 0.75)],
+    "contours": [(0.00, 1.00, 0.85, 0.85), (0.55, 0.25, 0.85, 0.80),
+                 (0.98, 0.18, 0.90, 0.90), (0.70, 0.22, 0.80, 0.80),
+                 (0.25, 0.25, 0.85, 0.75)],
+    "stitch":   [(0.00, 1.00, 0.55, 0.95), (0.52, 0.25, 0.50, 0.95),
+                 (0.90, 0.20, 0.50, 0.95), (0.40, 0.22, 0.50, 0.95),
+                 (0.70, 0.22, 0.50, 0.95)],
+}
+
+
+def themes():
+    """BG(n) is style (n-1)%5, palette variant (n-1)//5, n = 1..25."""
+    for n in range(1, 26):
+        sname, sfn, scale = STYLES[(n - 1) % 5]
+        pp = PALETTES[sname][(n - 1) // 5]
+        yield n, sfn, scale, 3000 + n, make_pal(*pp)
 
 
 def main():
-    for name, theme, scale, seed in THEMES:
+    for n, style_fn, scale, seed, pal in themes():
         for platform, (w, h) in PLATFORMS.items():
             rng = np.random.default_rng(seed)
             random.seed(seed)
             noise = perlin_grid(w, h, scale, rng)
             img = Image.new("RGB", (w, h), (255, 255, 255))
-            theme(ImageDraw.Draw(img), w, h, noise, rng)
-            path = os.path.join(OUT_DIR, "%s~%s.png" % (name, platform))
+            style_fn(ImageDraw.Draw(img), w, h, noise, rng, pal)
+            img = img.quantize(colors=MAX_COLORS, method=Image.MEDIANCUT,
+                               dither=Image.NONE)
+            path = os.path.join(OUT_DIR, "perlin-gen-%04d~%s.png" % (n, platform))
             img.save(path, optimize=True)
             print(path)
 

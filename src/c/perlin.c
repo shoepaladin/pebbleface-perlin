@@ -62,6 +62,36 @@ static int current_steps = 0;
 static int s_random = 0;   // BG1 is loaded at init
 static int temp_random;
 
+// When Bluetooth disconnects the whole color scheme is inverted as a visual
+// alert: white chrome turns black, black text turns white, and the
+// background art has its palette inverted in place.
+static bool color_inverted = false;
+
+// All backgrounds are generated with <=16 colors so they pack as palettized
+// GBitmaps; inverting is just rewriting the palette entries.
+static void invert_palette(GBitmap *bm) {
+  if (!bm) {
+    return;
+  }
+
+  GColor *pal = gbitmap_get_palette(bm);
+  if (!pal) {
+    return;
+  }
+
+  int n;
+  switch (gbitmap_get_format(bm)) {
+    case GBitmapFormat1BitPalette: n = 2;  break;
+    case GBitmapFormat2BitPalette: n = 4;  break;
+    case GBitmapFormat4BitPalette: n = 16; break;
+    default: return;   // raw formats carry no palette
+  }
+
+  for (int i = 0; i < n; i++) {
+    pal[i].argb = (pal[i].argb & 0b11000000) | (~pal[i].argb & 0b00111111);
+  }
+}
+
 static void steps_update_proc(Layer *layer, GContext *ctx) {
   GRect bounds = layer_get_bounds(layer);
 
@@ -80,7 +110,7 @@ static void steps_update_proc(Layer *layer, GContext *ctx) {
   }
 
   GRect bar = GRect((bounds.size.w - width) / 2, 0, width, bounds.size.h);
-  graphics_context_set_fill_color(ctx, GColorBlack);
+  graphics_context_set_fill_color(ctx, color_inverted ? GColorWhite : GColorBlack);
   graphics_fill_rect(ctx, bar, 1, GCornersAll);
 }
 
@@ -138,6 +168,9 @@ void theme_choice() {
   background_image = gbitmap_create_with_resource(BG_RESOURCES[s_random]);
 
   if (background_image != NULL) {
+    if (color_inverted) {
+      invert_palette(background_image);
+    }
     bitmap_layer_set_bitmap(background_layer, background_image);
     layer_set_hidden(bitmap_layer_get_layer(background_layer), false);
     layer_mark_dirty(bitmap_layer_get_layer(background_layer));
@@ -255,13 +288,44 @@ void update_battery_state(BatteryChargeState charge_state) {
 	
 } 
 
+// Repaints every layer in the current (normal or inverted) scheme and flips
+// the background palette once. Call only when color_inverted has changed.
+static void apply_color_scheme(void) {
+  GColor fg = color_inverted ? GColorWhite : GColorBlack;
+  GColor bg = color_inverted ? GColorBlack : GColorWhite;
+
+  window_set_background_color(window, bg);
+
+  text_layer_set_text_color(layer_time_hour_text, fg);
+  text_layer_set_text_color(layer_time_min_text, fg);
+  text_layer_set_text_color(layer_date_text, fg);
+  text_layer_set_text_color(battery_text_layer, fg);
+
+  text_layer_set_background_color(layer_date_text, bg);
+  text_layer_set_background_color(battery_text_layer, bg);
+
+  invert_palette(background_image);
+  if (background_layer) {
+    layer_mark_dirty(bitmap_layer_get_layer(background_layer));
+  }
+  if (steps_layer) {
+    layer_mark_dirty(steps_layer);
+  }
+}
+
 static void toggle_bluetooth(bool connected) {
 
 if (appStarted && !connected && bluetoothvibe) {
-	  
+
     //vibe!
     vibes_long_pulse();
    }
+
+  // invert the entire color scheme while disconnected
+  if (color_inverted != !connected) {
+    color_inverted = !connected;
+    apply_color_scheme();
+  }
 }
 
 void bluetooth_connection_callback(bool connected) {

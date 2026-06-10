@@ -37,12 +37,24 @@ no external configuration page is needed:
 
 ## Backgrounds
 
-The face rotates through 25 backgrounds. BG1–BG20 are the original hand-made
-themes. **BG21–BG25 are new in v1.3.0**: procedurally generated perlin-noise
-artwork (rainbow arrows, teal boxes, warm flow strokes, contour bands and
-pastel stitches), rendered natively for every platform size by
+The face rotates through 25 backgrounds. **As of v1.5.0 all of them are
+procedurally generated** perlin-noise artwork — five glyph styles (arrows,
+boxes, flow strokes, contour bands, stitches) in five palette variants each —
+rendered natively for every platform size by
 [`tools/generate_backgrounds.py`](tools/generate_backgrounds.py). The script
-is seeded, so the shipped artwork can be regenerated exactly.
+is seeded, so the shipped artwork can be regenerated exactly. Every image is
+limited to 16 colors so it packs as a 4-bit palettized GBitmap, which lets
+the watch invert the artwork in place (see below).
+
+## v1.5.0 changes
+
+- All 25 backgrounds are now procedurally generated; the original hand-made
+  art was replaced with generated themes (smaller resources, native sizes
+  for every platform).
+- New: when Bluetooth disconnects, the entire color scheme inverts — black
+  chrome, white text, white steps bar, and the background palette flipped
+  in place — and reverts on reconnect. This rides on the existing
+  connection handler; the disconnect vibe setting is unchanged.
 
 ## v1.4.0 changes
 

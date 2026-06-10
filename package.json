@@ -33,197 +33,7 @@
                     "type": "bitmap"
                 },
                 {
-                    "file": "images/Face-1-0005.png",
-                    "name": "IMAGE_BG20",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-1-0004.png",
-                    "name": "IMAGE_BG19",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-1-0003.png",
-                    "name": "IMAGE_BG18",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-1-0002.png",
-                    "name": "IMAGE_BG17",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-1-0001.png",
-                    "name": "IMAGE_BG16",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-0-0010.png",
-                    "name": "IMAGE_BG15",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-0-0009.png",
-                    "name": "IMAGE_BG14",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-0-0008.png",
-                    "name": "IMAGE_BG13",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-0-0007.png",
-                    "name": "IMAGE_BG12",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-0-0006.png",
-                    "name": "IMAGE_BG11",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-0-0005.png",
-                    "name": "IMAGE_BG10",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-0-0004.png",
-                    "name": "IMAGE_BG9",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-0-0003.png",
-                    "name": "IMAGE_BG8",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-0-0002.png",
-                    "name": "IMAGE_BG7",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-5-0010-2.png",
-                    "name": "IMAGE_BG6",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-4-0007-2.png",
-                    "name": "IMAGE_BG5",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-4-0005-2.png",
-                    "name": "IMAGE_BG4",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-3-0009-2.png",
-                    "name": "IMAGE_BG3",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-3-0006-2.png",
-                    "name": "IMAGE_BG2",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/Face-0-0001-2.png",
+                    "file": "images/perlin-gen-0001.png",
                     "name": "IMAGE_BG1",
                     "targetPlatforms": [
                         "basalt",
@@ -233,18 +43,8 @@
                     "type": "bitmap"
                 },
                 {
-                    "file": "images/perlin-gen-0001.png",
-                    "name": "IMAGE_BG21",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
                     "file": "images/perlin-gen-0002.png",
-                    "name": "IMAGE_BG22",
+                    "name": "IMAGE_BG2",
                     "targetPlatforms": [
                         "basalt",
                         "chalk",
@@ -254,7 +54,7 @@
                 },
                 {
                     "file": "images/perlin-gen-0003.png",
-                    "name": "IMAGE_BG23",
+                    "name": "IMAGE_BG3",
                     "targetPlatforms": [
                         "basalt",
                         "chalk",
@@ -264,7 +64,7 @@
                 },
                 {
                     "file": "images/perlin-gen-0004.png",
-                    "name": "IMAGE_BG24",
+                    "name": "IMAGE_BG4",
                     "targetPlatforms": [
                         "basalt",
                         "chalk",
@@ -274,6 +74,206 @@
                 },
                 {
                     "file": "images/perlin-gen-0005.png",
+                    "name": "IMAGE_BG5",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0006.png",
+                    "name": "IMAGE_BG6",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0007.png",
+                    "name": "IMAGE_BG7",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0008.png",
+                    "name": "IMAGE_BG8",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0009.png",
+                    "name": "IMAGE_BG9",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0010.png",
+                    "name": "IMAGE_BG10",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0011.png",
+                    "name": "IMAGE_BG11",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0012.png",
+                    "name": "IMAGE_BG12",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0013.png",
+                    "name": "IMAGE_BG13",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0014.png",
+                    "name": "IMAGE_BG14",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0015.png",
+                    "name": "IMAGE_BG15",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0016.png",
+                    "name": "IMAGE_BG16",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0017.png",
+                    "name": "IMAGE_BG17",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0018.png",
+                    "name": "IMAGE_BG18",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0019.png",
+                    "name": "IMAGE_BG19",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0020.png",
+                    "name": "IMAGE_BG20",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0021.png",
+                    "name": "IMAGE_BG21",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0022.png",
+                    "name": "IMAGE_BG22",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0023.png",
+                    "name": "IMAGE_BG23",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0024.png",
+                    "name": "IMAGE_BG24",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0025.png",
                     "name": "IMAGE_BG25",
                     "targetPlatforms": [
                         "basalt",
@@ -312,5 +312,5 @@
             "watchface": true
         }
     },
-    "version": "1.4.0"
+    "version": "1.5.0"
 }

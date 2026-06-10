@@ -12,9 +12,11 @@
         "messageKeys": {
             "bluetoothvibe": 1,
             "hourlyvibe": 2,
+            "maxsteps": 6,
             "randomtime": 4,
             "showbatt": 3,
-            "showdate": 0
+            "showdate": 0,
+            "showsteps": 5
         },
         "projectType": "native",
         "resources": {
@@ -31,7 +33,8 @@
                     "name": "IMAGE_BG20",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -40,7 +43,8 @@
                     "name": "IMAGE_BG19",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -49,7 +53,8 @@
                     "name": "IMAGE_BG18",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -58,7 +63,8 @@
                     "name": "IMAGE_BG17",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -67,7 +73,8 @@
                     "name": "IMAGE_BG16",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -76,7 +83,8 @@
                     "name": "IMAGE_BG15",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -85,7 +93,8 @@
                     "name": "IMAGE_BG14",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -94,7 +103,8 @@
                     "name": "IMAGE_BG13",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -103,7 +113,8 @@
                     "name": "IMAGE_BG12",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -112,7 +123,8 @@
                     "name": "IMAGE_BG11",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -121,7 +133,8 @@
                     "name": "IMAGE_BG10",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -130,7 +143,8 @@
                     "name": "IMAGE_BG9",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -139,7 +153,8 @@
                     "name": "IMAGE_BG8",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -148,7 +163,8 @@
                     "name": "IMAGE_BG7",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -157,7 +173,8 @@
                     "name": "IMAGE_BG6",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -166,7 +183,8 @@
                     "name": "IMAGE_BG5",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -175,7 +193,8 @@
                     "name": "IMAGE_BG4",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -184,7 +203,8 @@
                     "name": "IMAGE_BG3",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -193,7 +213,8 @@
                     "name": "IMAGE_BG2",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -202,7 +223,8 @@
                     "name": "IMAGE_BG1",
                     "targetPlatforms": [
                         "basalt",
-                        "chalk"
+                        "chalk",
+                        "emery"
                     ],
                     "type": "bitmap"
                 },
@@ -223,12 +245,13 @@
         "sdkVersion": "3",
         "targetPlatforms": [
             "basalt",
-            "chalk"
+            "chalk",
+            "emery"
         ],
         "uuid": "6e909c30-2df7-4953-906f-cb40db4ee6d4",
         "watchapp": {
             "watchface": true
         }
     },
-    "version": "1.2.0"
+    "version": "1.3.0"
 }

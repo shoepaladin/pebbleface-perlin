@@ -22,6 +22,8 @@ static int bluetoothvibe;
 static int hourlyvibe;
 static int showbatt;
 static int randomtime;
+static int showsteps;
+static int maxsteps;
 
 static bool appStarted = false;
 
@@ -30,7 +32,9 @@ enum {
   BLUETOOTHVIBE_KEY = 0x1,
   HOURLYVIBE_KEY = 0x2,
   BATT_KEY = 0x3,
-  RANDOMTIME_KEY = 0x4
+  RANDOMTIME_KEY = 0x4,
+  STEPS_KEY = 0x5,
+  MAXSTEPS_KEY = 0x6
 };
 
 Window *window;
@@ -51,8 +55,67 @@ int charge_percent = 0;
 
 TextLayer *battery_text_layer;
 
+static Layer *steps_layer;
+static int current_steps = 0;
+
 static int s_random = 20;
 static int temp_random;
+
+static void steps_update_proc(Layer *layer, GContext *ctx) {
+  GRect bounds = layer_get_bounds(layer);
+
+  // bar grows equally left/right from the center, keeping 5px padding per side at max
+  int max_width = bounds.size.w - 10;
+  int max = maxsteps > 0 ? maxsteps : 10000;
+
+  int steps = current_steps;
+  if (steps > max) {
+    steps = max;
+  }
+
+  int width = (max_width * steps) / max;
+  if (width <= 0) {
+    return;
+  }
+
+  GRect bar = GRect((bounds.size.w - width) / 2, 0, width, bounds.size.h);
+  graphics_context_set_fill_color(ctx, GColorBlack);
+  graphics_fill_rect(ctx, bar, 1, GCornersAll);
+}
+
+#ifdef PBL_HEALTH
+static void update_steps(void) {
+  time_t start = time_start_of_today();
+  time_t end = time(NULL);
+
+  HealthServiceAccessibilityMask mask =
+      health_service_metric_accessible(HealthMetricStepCount, start, end);
+
+  if (mask & HealthServiceAccessibilityMaskAvailable) {
+    current_steps = (int)health_service_sum_today(HealthMetricStepCount);
+  } else {
+    current_steps = 0;
+  }
+
+  if (steps_layer) {
+    layer_mark_dirty(steps_layer);
+  }
+}
+
+static void health_handler(HealthEventType event, void *context) {
+  if (event == HealthEventSignificantUpdate || event == HealthEventMovementUpdate) {
+    update_steps();
+  }
+}
+#else
+static void update_steps(void) {
+  current_steps = 0;
+
+  if (steps_layer) {
+    layer_mark_dirty(steps_layer);
+  }
+}
+#endif
 
 
 void theme_choice() {	
@@ -165,12 +228,26 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
 	  persist_write_bool(RANDOMTIME_KEY, randomtime);	  
 
 	  if (randomtime) {
-	  
+
 	theme_choice();
-	  
+
 	  }
-	  
+
      break;
+
+	case STEPS_KEY:
+	  showsteps = new_tuple->value->uint8 != 0;
+	  persist_write_bool(STEPS_KEY, showsteps);
+
+	  layer_set_hidden(steps_layer, !showsteps);
+	  break;
+
+	case MAXSTEPS_KEY:
+	  maxsteps = new_tuple->value->int32;
+	  persist_write_int(MAXSTEPS_KEY, maxsteps);
+
+	  layer_mark_dirty(steps_layer);
+	  break;
   }
 }
 
@@ -300,20 +377,34 @@ void handle_init(void) {
 	date_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_LECO_14));
 
     // layer position and alignment
-#ifdef PBL_PLATFORM_CHALK
+#if defined(PBL_PLATFORM_EMERY)
+    // Pebble Time 2 (emery): 200x228 screen, larger frames for time and date
+    layer_time_hour_text = text_layer_create(GRect(0, 24, 200, 70));
+	layer_time_min_text = text_layer_create(GRect(0, 100, 200, 70));
+
+    layer_date_text = text_layer_create(GRect(30, 198, 140, 22));
+    battery_text_layer = text_layer_create(GRect(70, 6, 60, 20));
+
+	steps_layer = layer_create(GRect(0, 182, 200, 8));
+
+#elif defined(PBL_PLATFORM_CHALK)
     layer_time_hour_text = text_layer_create(GRect(0, 16, 182, 64));
 	layer_time_min_text = text_layer_create(GRect(0, 73, 182, 64));
 
     layer_date_text = text_layer_create(GRect(0, 141, 178, 18));
-    battery_text_layer = text_layer_create(GRect(0, 11, 178, 18));	
-	
+    battery_text_layer = text_layer_create(GRect(0, 11, 178, 18));
+
+	steps_layer = layer_create(GRect(0, 137, 180, 4));
+
 #else
     layer_time_hour_text = text_layer_create(GRect(0, 15, 146, 64));
 	layer_time_min_text = text_layer_create(GRect(0, 72, 146, 64));
 
     layer_date_text = text_layer_create(GRect(22, 145, 106, 18));
-    battery_text_layer = text_layer_create(GRect(50, 5, 36, 18));	
-	
+    battery_text_layer = text_layer_create(GRect(50, 5, 36, 18));
+
+	steps_layer = layer_create(GRect(0, 138, 144, 5));
+
 #endif
 
     window_set_background_color(window, GColorWhite);
@@ -338,16 +429,26 @@ void handle_init(void) {
     text_layer_set_text_alignment(battery_text_layer, GTextAlignmentCenter);
 	text_layer_set_text_alignment(layer_time_min_text, GTextAlignmentCenter);
 
+	layer_set_update_proc(steps_layer, steps_update_proc);
+
     // composing layers
     layer_add_child(window_layer, text_layer_get_layer(layer_time_hour_text));
     layer_add_child(window_layer, text_layer_get_layer(layer_date_text));
     layer_add_child(window_layer, text_layer_get_layer(battery_text_layer));
     layer_add_child(window_layer, text_layer_get_layer(layer_time_min_text));
+    layer_add_child(window_layer, steps_layer);
 
      // handlers
     battery_state_service_subscribe(&update_battery_state);
     bluetooth_connection_service_subscribe(&toggle_bluetooth);
     tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
+
+#ifdef PBL_HEALTH
+    health_service_events_subscribe(health_handler, NULL);
+#endif
+
+	showsteps = persist_exists(STEPS_KEY) ? persist_read_bool(STEPS_KEY) : 1;
+	maxsteps = persist_exists(MAXSTEPS_KEY) ? persist_read_int(MAXSTEPS_KEY) : 10000;
 
    Tuplet initial_values[] = {
     TupletInteger(DATE_KEY, persist_read_bool(DATE_KEY)),
@@ -355,6 +456,8 @@ void handle_init(void) {
     TupletInteger(HOURLYVIBE_KEY, persist_read_bool(HOURLYVIBE_KEY)),
     TupletInteger(BATT_KEY, persist_read_bool(BATT_KEY)),
     TupletInteger(RANDOMTIME_KEY, persist_read_bool(RANDOMTIME_KEY)),
+    TupletInteger(STEPS_KEY, showsteps),
+    TupletInteger(MAXSTEPS_KEY, (int32_t)maxsteps),
   };
   
     app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
@@ -364,7 +467,12 @@ void handle_init(void) {
 	
 	// update the battery on launch
     update_battery_state(battery_state_service_peek());
-	
+
+	// initial step count for the progress bar
+	update_steps();
+
+	layer_set_hidden(steps_layer, !showsteps);
+
     // draw first frame
     force_update();
 }
@@ -376,6 +484,10 @@ void handle_deinit(void) {
   bluetooth_connection_service_unsubscribe();
   battery_state_service_unsubscribe();
 
+#ifdef PBL_HEALTH
+  health_service_events_unsubscribe();
+#endif
+
   layer_remove_from_parent(bitmap_layer_get_layer(background_layer));
   bitmap_layer_destroy(background_layer);
   gbitmap_destroy(background_image);
@@ -385,6 +497,8 @@ void handle_deinit(void) {
   text_layer_destroy( layer_time_min_text );
   text_layer_destroy( layer_date_text );
   text_layer_destroy( battery_text_layer );
+
+  layer_destroy( steps_layer );
 	
   fonts_unload_custom_font(time_font);
   fonts_unload_custom_font(date_font);

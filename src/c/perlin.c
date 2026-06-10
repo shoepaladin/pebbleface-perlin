@@ -14,9 +14,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pebble.h"
 
-static AppSync sync;
-static uint8_t sync_buffer[256];
-
 static int showdate;
 static int bluetoothvibe;
 static int hourlyvibe;
@@ -83,8 +80,10 @@ static void steps_update_proc(Layer *layer, GContext *ctx) {
   graphics_fill_rect(ctx, bar, 1, GCornersAll);
 }
 
-#ifdef PBL_HEALTH
+// Steps are polled from the minute tick handler (and on launch) rather than
+// relying on a HealthService event subscription.
 static void update_steps(void) {
+#if defined(PBL_HEALTH)
   time_t start = time_start_of_today();
   time_t end = time(NULL);
 
@@ -96,26 +95,14 @@ static void update_steps(void) {
   } else {
     current_steps = 0;
   }
-
-  if (steps_layer) {
-    layer_mark_dirty(steps_layer);
-  }
-}
-
-static void health_handler(HealthEventType event, void *context) {
-  if (event == HealthEventSignificantUpdate || event == HealthEventMovementUpdate) {
-    update_steps();
-  }
-}
 #else
-static void update_steps(void) {
-  current_steps = 0;
+  current_steps = 0;   // watch has no health support
+#endif
 
   if (steps_layer) {
     layer_mark_dirty(steps_layer);
   }
 }
-#endif
 
 
 void theme_choice() {	
@@ -187,68 +174,81 @@ void theme_choice() {
   }
 }
 
-static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
-  switch (key) {
-		  
-    case DATE_KEY:
-      showdate = new_tuple->value->uint8 != 0;
-	  persist_write_bool(DATE_KEY, showdate);
-	  
-	  if (showdate) {
-		 layer_set_hidden(text_layer_get_layer(layer_date_text), true); 
-	  } else {
-		 layer_set_hidden(text_layer_get_layer(layer_date_text), false); 
-	  }
-	  break;
-    
-	case BLUETOOTHVIBE_KEY:
-      bluetoothvibe = new_tuple->value->uint8 != 0;
-	  persist_write_bool(BLUETOOTHVIBE_KEY, bluetoothvibe);
-    break;     
-     
-	case HOURLYVIBE_KEY:
-      hourlyvibe = new_tuple->value->uint8 != 0;
-	  persist_write_bool(HOURLYVIBE_KEY, hourlyvibe);	  
-    break;
-	  
-	  
-	  case BATT_KEY:
-		showbatt = new_tuple->value->uint8  !=0;
-		persist_write_bool(BATT_KEY, showbatt);
+// Settings arrive from Clay as a plain AppMessage; read each key with
+// dict_find and persist it. Toggles arrive as ints, the step goal input
+// arrives as a CString.
+static void in_received_handler(DictionaryIterator *iter, void *context) {
+  Tuple *t;
 
-	  if (showbatt) {
-		 layer_set_hidden(text_layer_get_layer(battery_text_layer), true); 
-	  } else {
-		 layer_set_hidden(text_layer_get_layer(battery_text_layer), false); 
-	  }
-	  break;
-	  
-    case RANDOMTIME_KEY:
-      randomtime = new_tuple->value->uint8 != 0;
-	  persist_write_bool(RANDOMTIME_KEY, randomtime);	  
-
-	  if (randomtime) {
-
-	theme_choice();
-
-	  }
-
-     break;
-
-	case STEPS_KEY:
-	  showsteps = new_tuple->value->uint8 != 0;
-	  persist_write_bool(STEPS_KEY, showsteps);
-
-	  layer_set_hidden(steps_layer, !showsteps);
-	  break;
-
-	case MAXSTEPS_KEY:
-	  maxsteps = new_tuple->value->int32;
-	  persist_write_int(MAXSTEPS_KEY, maxsteps);
-
-	  layer_mark_dirty(steps_layer);
-	  break;
+  t = dict_find(iter, DATE_KEY);
+  if (t) {
+    showdate = t->value->int32 != 0;
+    persist_write_bool(DATE_KEY, showdate);
+    layer_set_hidden(text_layer_get_layer(layer_date_text), !showdate);
   }
+
+  t = dict_find(iter, BLUETOOTHVIBE_KEY);
+  if (t) {
+    bluetoothvibe = t->value->int32 != 0;
+    persist_write_bool(BLUETOOTHVIBE_KEY, bluetoothvibe);
+  }
+
+  t = dict_find(iter, HOURLYVIBE_KEY);
+  if (t) {
+    hourlyvibe = t->value->int32 != 0;
+    persist_write_bool(HOURLYVIBE_KEY, hourlyvibe);
+  }
+
+  t = dict_find(iter, BATT_KEY);
+  if (t) {
+    showbatt = t->value->int32 != 0;
+    persist_write_bool(BATT_KEY, showbatt);
+    layer_set_hidden(text_layer_get_layer(battery_text_layer), !showbatt);
+  }
+
+  t = dict_find(iter, RANDOMTIME_KEY);
+  if (t) {
+    randomtime = t->value->int32 != 0;
+    persist_write_bool(RANDOMTIME_KEY, randomtime);
+
+    if (randomtime) {
+      theme_choice();
+    }
+  }
+
+  t = dict_find(iter, STEPS_KEY);
+  if (t) {
+    showsteps = t->value->int32 != 0;
+    persist_write_bool(STEPS_KEY, showsteps);
+    layer_set_hidden(steps_layer, !showsteps);
+  }
+
+  t = dict_find(iter, MAXSTEPS_KEY);
+  if (t) {
+    int v;
+    // Clay sends the input field as a CString; tolerate either.
+    if (t->type == TUPLE_CSTRING) {
+      v = atoi(t->value->cstring);
+    } else {
+      v = (int)t->value->int32;
+    }
+    if (v < 100) v = 100;        // guardrails
+    if (v > 100000) v = 100000;
+    maxsteps = v;
+    persist_write_int(MAXSTEPS_KEY, maxsteps);
+    layer_mark_dirty(steps_layer);
+  }
+}
+
+static void load_persisted_settings(void) {
+  showdate      = persist_exists(DATE_KEY) ? persist_read_bool(DATE_KEY) : 1;
+  bluetoothvibe = persist_exists(BLUETOOTHVIBE_KEY) ? persist_read_bool(BLUETOOTHVIBE_KEY) : 1;
+  hourlyvibe    = persist_exists(HOURLYVIBE_KEY) ? persist_read_bool(HOURLYVIBE_KEY) : 0;
+  showbatt      = persist_exists(BATT_KEY) ? persist_read_bool(BATT_KEY) : 1;
+  randomtime    = persist_exists(RANDOMTIME_KEY) ? persist_read_bool(RANDOMTIME_KEY) : 0;
+  showsteps     = persist_exists(STEPS_KEY) ? persist_read_bool(STEPS_KEY) : 1;
+  maxsteps      = persist_exists(MAXSTEPS_KEY) ? persist_read_int(MAXSTEPS_KEY) : 10000;
+  if (maxsteps < 100) maxsteps = 10000;
 }
 
 void update_battery_state(BatteryChargeState charge_state) {
@@ -338,7 +338,8 @@ void hourvibe (struct tm *tick_time) {
 
 void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
     update_time(tick_time);
-	
+    update_steps();
+
 if (units_changed & HOUR_UNIT) {
     hourvibe(tick_time);
 	theme_choice();
@@ -357,10 +358,11 @@ void force_update(void) {
 
 void handle_init(void) {
 
-	const int inbound_size = 256;
-    const int outbound_size = 256;
-    app_message_open(inbound_size, outbound_size);  
-	
+	load_persisted_settings();
+
+	app_message_register_inbox_received(in_received_handler);
+    app_message_open(256, 64);
+
     window = window_create();
     window_stack_push(window, true);
  
@@ -443,26 +445,10 @@ void handle_init(void) {
     bluetooth_connection_service_subscribe(&toggle_bluetooth);
     tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
 
-#ifdef PBL_HEALTH
-    health_service_events_subscribe(health_handler, NULL);
-#endif
+	// apply persisted settings to the layers
+	layer_set_hidden(text_layer_get_layer(layer_date_text), !showdate);
+	layer_set_hidden(text_layer_get_layer(battery_text_layer), !showbatt);
 
-	showsteps = persist_exists(STEPS_KEY) ? persist_read_bool(STEPS_KEY) : 1;
-	maxsteps = persist_exists(MAXSTEPS_KEY) ? persist_read_int(MAXSTEPS_KEY) : 10000;
-
-   Tuplet initial_values[] = {
-    TupletInteger(DATE_KEY, persist_read_bool(DATE_KEY)),
-    TupletInteger(BLUETOOTHVIBE_KEY, persist_read_bool(BLUETOOTHVIBE_KEY)),
-    TupletInteger(HOURLYVIBE_KEY, persist_read_bool(HOURLYVIBE_KEY)),
-    TupletInteger(BATT_KEY, persist_read_bool(BATT_KEY)),
-    TupletInteger(RANDOMTIME_KEY, persist_read_bool(RANDOMTIME_KEY)),
-    TupletInteger(STEPS_KEY, showsteps),
-    TupletInteger(MAXSTEPS_KEY, (int32_t)maxsteps),
-  };
-  
-    app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
-      sync_tuple_changed_callback, NULL, NULL);
-   
     appStarted = true;
 	
 	// update the battery on launch
@@ -478,15 +464,11 @@ void handle_init(void) {
 }
 
 void handle_deinit(void) {
-  app_sync_deinit(&sync);
+  app_message_deregister_callbacks();
 
   tick_timer_service_unsubscribe();
   bluetooth_connection_service_unsubscribe();
   battery_state_service_unsubscribe();
-
-#ifdef PBL_HEALTH
-  health_service_events_unsubscribe();
-#endif
 
   layer_remove_from_parent(bitmap_layer_get_layer(background_layer));
   bitmap_layer_destroy(background_layer);

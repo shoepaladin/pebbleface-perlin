@@ -10,35 +10,47 @@ Perlin is a Pebble watchface with randomly rotating perlin-noise backgrounds.
 
 ## Features
 
-- Time and date over rotating perlin-noise backgrounds (changes hourly, or can be fixed)
+- Time and date over rotating perlin-noise backgrounds (changes hourly)
 - Optional date display
 - Optional battery percentage display
 - Bluetooth disconnect vibration (optional)
 - Hourly vibration (optional)
 - Steps progress bar (new in v1.3.0): a horizontal bar between the time and the
   date that grows outward from the center as you approach your daily step goal.
-  Uses the Pebble Health API. Configurable from the settings page:
-  - `showsteps` — show/hide the bar
-  - `maxsteps` — daily step goal the bar is scaled against (default 10000)
+  Step counts are polled from the Health API once a minute in the tick handler
+  (no HealthService event subscription).
+
+## Configuration
+
+Settings are configured in-app via [Clay](https://github.com/pebble/clay) —
+no external configuration page is needed:
+
+- Show date (default on)
+- Show battery percentage (default on)
+- Show steps progress bar (default on)
+- Daily step goal the bar is scaled against (default 10000)
+- Bluetooth disconnect vibration (default on)
+- Hourly vibration (default off)
+- Shuffle background when saving settings
 
 ## v1.3.0 changes
 
-- Added Pebble Time 2 (emery) support with larger time/date layout frames
-  optimized for the bigger 200x228 screen. The existing LECO fonts are kept;
-  only the layer frames were enlarged/repositioned.
-- Added the configurable steps progress bar (Health API, with graceful
-  fallback to zero steps on platforms without health support).
-- Configuration page URL switched to HTTPS.
+- Added Pebble Time 2 (emery) support with larger time/date layout frames for
+  the 200x228 screen, plus 200x228 upscaled background artwork (`~emery`
+  resource variants).
+- Added the configurable steps progress bar. Steps are polled each minute via
+  `health_service_sum_today` (guarded by `PBL_HEALTH`, zero-step fallback on
+  watches without health support).
+- Replaced the externally hosted configuration page with Clay; settings are
+  now sent as plain AppMessages (AppSync removed) and persisted on the watch.
+- Project restructured to the modern SDK layout: `src/c/` + `src/pkjs/`,
+  `enableMultiJS`, updated wscript.
 
 ## Building
 
-Build with the Pebble SDK:
+Install the JS dependencies and build with the Pebble SDK:
 
 ```
 pebble build
 pebble install --emulator emery
 ```
-
-Note: emery uses the basalt background artwork (centered on the larger
-screen). Layout offsets may need minor tweaks after testing on a real
-device or emulator.

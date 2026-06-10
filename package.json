@@ -1,14 +1,17 @@
 {
     "author": "chops",
-    "dependencies": {},
+    "dependencies": {
+        "pebble-clay": "^1.0.4"
+    },
     "keywords": [],
     "name": "perlin",
     "pebble": {
         "capabilities": [
-            "configurable"
+            "configurable",
+            "health"
         ],
         "displayName": "perlin",
-        "enableMultiJS": false,
+        "enableMultiJS": true,
         "messageKeys": {
             "bluetoothvibe": 1,
             "hourlyvibe": 2,

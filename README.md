@@ -32,8 +32,7 @@ no external configuration page is needed:
 - Bluetooth disconnect vibration (default on)
 - Hourly vibration (default off)
 - Shuffle background when saving settings
-- Background refresh interval: every 1, 5, 15, 30 or 60 hours (default 1,
-  new in v1.4.0)
+- Background refresh interval: every 1, 5, 15, 30 or 60 minutes (default 60)
 
 ## Backgrounds
 
@@ -55,6 +54,11 @@ the watch invert the artwork in place (see below).
   chrome, white text, white steps bar, and the background palette flipped
   in place — and reverts on reconnect. This rides on the existing
   connection handler; the disconnect vibe setting is unchanged.
+
+## v1.5.1 changes
+
+- The background refresh interval is now in minutes (1/5/15/30/60, default
+  60), not hours as v1.4.0 introduced it.
 
 ## v1.4.0 changes
 

@@ -21,8 +21,8 @@ static int showbatt;
 static int randomtime;
 static int showsteps;
 static int maxsteps;
-static int refreshhours;
-static int hours_since_refresh = 0;
+static int refreshminutes;
+static int minutes_since_refresh = 0;
 
 static bool appStarted = false;
 
@@ -253,9 +253,9 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
     }
     if (v < 1) v = 1;
     if (v > 60) v = 60;
-    refreshhours = v;
-    persist_write_int(REFRESH_KEY, refreshhours);
-    hours_since_refresh = 0;   // restart the countdown from now
+    refreshminutes = v;
+    persist_write_int(REFRESH_KEY, refreshminutes);
+    minutes_since_refresh = 0;   // restart the countdown from now
   }
 }
 
@@ -268,8 +268,8 @@ static void load_persisted_settings(void) {
   showsteps     = persist_exists(STEPS_KEY) ? persist_read_bool(STEPS_KEY) : 1;
   maxsteps      = persist_exists(MAXSTEPS_KEY) ? persist_read_int(MAXSTEPS_KEY) : 10000;
   if (maxsteps < 100) maxsteps = 10000;
-  refreshhours  = persist_exists(REFRESH_KEY) ? persist_read_int(REFRESH_KEY) : 1;
-  if (refreshhours < 1 || refreshhours > 60) refreshhours = 1;
+  refreshminutes = persist_exists(REFRESH_KEY) ? persist_read_int(REFRESH_KEY) : 60;
+  if (refreshminutes < 1 || refreshminutes > 60) refreshminutes = 60;
 }
 
 void update_battery_state(BatteryChargeState charge_state) {
@@ -392,20 +392,16 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
     update_time(tick_time);
     update_steps();
 
-if (units_changed & HOUR_UNIT) {
-    hourvibe(tick_time);
-
-    // change the background every refreshhours hours
-    hours_since_refresh++;
-    if (hours_since_refresh >= refreshhours) {
-      hours_since_refresh = 0;
+    // change the background every refreshminutes minutes
+    minutes_since_refresh++;
+    if (minutes_since_refresh >= refreshminutes) {
+      minutes_since_refresh = 0;
       theme_choice();
     }
+
+if (units_changed & HOUR_UNIT) {
+    hourvibe(tick_time);
 }
-	
-if (units_changed & MINUTE_UNIT) { 	
-//theme_choice();  // used for testing	
- }
 }
 
 void force_update(void) {

@@ -98,15 +98,15 @@ module.exports = [
       },
       {
         "type": "radiogroup",
-        "messageKey": "refreshhours",
+        "messageKey": "refreshminutes",
         "label": "Change background every",
-        "defaultValue": "1",
+        "defaultValue": "60",
         "options": [
-          { "label": "1 hour",   "value": "1"  },
-          { "label": "5 hours",  "value": "5"  },
-          { "label": "15 hours", "value": "15" },
-          { "label": "30 hours", "value": "30" },
-          { "label": "60 hours", "value": "60" }
+          { "label": "1 minute",   "value": "1"  },
+          { "label": "5 minutes",  "value": "5"  },
+          { "label": "15 minutes", "value": "15" },
+          { "label": "30 minutes", "value": "30" },
+          { "label": "60 minutes", "value": "60" }
         ]
       }
     ]

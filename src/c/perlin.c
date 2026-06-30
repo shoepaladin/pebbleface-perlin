@@ -138,6 +138,28 @@ static void update_steps(void) {
   }
 }
 
+// Timeline Quick View: when the system overlay slides up over the bottom of
+// the screen it sits right on top of the date line and the step bar, so hide
+// both while the screen is obstructed. The large time stays visible above the
+// overlay. When unobstructed, fall back to the user's show settings.
+static void apply_obstruction(void) {
+  if (!window) {
+    return;
+  }
+  Layer *root = window_get_root_layer(window);
+  bool obstructed = layer_get_unobstructed_bounds(root).size.h
+                  < layer_get_bounds(root).size.h;
+
+  layer_set_hidden(text_layer_get_layer(layer_date_text), obstructed || !showdate);
+  if (steps_layer) {
+    layer_set_hidden(steps_layer, obstructed || !showsteps);
+  }
+}
+
+static void unobstructed_did_change(void *context) {
+  apply_obstruction();
+}
+
 
 // 10 rotating backgrounds: two palette variants of each of the five
 // procedurally generated perlin-noise styles (see tools/generate_backgrounds.py).
@@ -182,7 +204,7 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
   if (t) {
     showdate = t->value->int32 != 0;
     persist_write_bool(DATE_KEY, showdate);
-    layer_set_hidden(text_layer_get_layer(layer_date_text), !showdate);
+    apply_obstruction();
   }
 
   t = dict_find(iter, BLUETOOTHVIBE_KEY);
@@ -218,7 +240,7 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
   if (t) {
     showsteps = t->value->int32 != 0;
     persist_write_bool(STEPS_KEY, showsteps);
-    layer_set_hidden(steps_layer, !showsteps);
+    apply_obstruction();
   }
 
   t = dict_find(iter, MAXSTEPS_KEY);
@@ -310,7 +332,7 @@ static void apply_color_scheme(void) {
 
 static void toggle_bluetooth(bool connected) {
 
-if (appStarted && !connected && bluetoothvibe) {
+if (appStarted && !connected && bluetoothvibe && !quiet_time_is_active()) {
 
     //vibe!
     vibes_long_pulse();
@@ -377,7 +399,7 @@ void update_time(struct tm *tick_time) {
 
 void hourvibe (struct tm *tick_time) {
 
-	  if(appStarted && hourlyvibe) {
+	  if(appStarted && hourlyvibe && !quiet_time_is_active()) {
     //vibe!
     vibes_short_pulse();
   }
@@ -494,9 +516,12 @@ void handle_init(void) {
     battery_state_service_subscribe(&update_battery_state);
     bluetooth_connection_service_subscribe(&toggle_bluetooth);
     tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
+    unobstructed_area_service_subscribe((UnobstructedAreaHandlers){
+      .did_change = unobstructed_did_change,
+    }, NULL);
 
-	// apply persisted settings to the layers
-	layer_set_hidden(text_layer_get_layer(layer_date_text), !showdate);
+	// apply persisted settings to the layers (date/steps go through
+	// apply_obstruction so a Timeline peek active at launch is respected)
 	layer_set_hidden(text_layer_get_layer(battery_text_layer), !showbatt);
 
     appStarted = true;
@@ -507,7 +532,8 @@ void handle_init(void) {
 	// initial step count for the progress bar
 	update_steps();
 
-	layer_set_hidden(steps_layer, !showsteps);
+	// set date + steps visibility, accounting for any launch-time obstruction
+	apply_obstruction();
 
     // draw first frame
     force_update();
@@ -519,6 +545,7 @@ void handle_deinit(void) {
   tick_timer_service_unsubscribe();
   bluetooth_connection_service_unsubscribe();
   battery_state_service_unsubscribe();
+  unobstructed_area_service_unsubscribe();
 
   layer_remove_from_parent(bitmap_layer_get_layer(background_layer));
   bitmap_layer_destroy(background_layer);

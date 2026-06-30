@@ -139,18 +139,13 @@ static void update_steps(void) {
 }
 
 
-// 25 rotating backgrounds. BG21-BG25 are new procedurally generated
-// perlin-noise themes (see tools/generate_backgrounds.py).
+// 10 rotating backgrounds: two palette variants of each of the five
+// procedurally generated perlin-noise styles (see tools/generate_backgrounds.py).
 static const uint32_t BG_RESOURCES[] = {
   RESOURCE_ID_IMAGE_BG1,  RESOURCE_ID_IMAGE_BG2,  RESOURCE_ID_IMAGE_BG3,
   RESOURCE_ID_IMAGE_BG4,  RESOURCE_ID_IMAGE_BG5,  RESOURCE_ID_IMAGE_BG6,
   RESOURCE_ID_IMAGE_BG7,  RESOURCE_ID_IMAGE_BG8,  RESOURCE_ID_IMAGE_BG9,
-  RESOURCE_ID_IMAGE_BG10, RESOURCE_ID_IMAGE_BG11, RESOURCE_ID_IMAGE_BG12,
-  RESOURCE_ID_IMAGE_BG13, RESOURCE_ID_IMAGE_BG14, RESOURCE_ID_IMAGE_BG15,
-  RESOURCE_ID_IMAGE_BG16, RESOURCE_ID_IMAGE_BG17, RESOURCE_ID_IMAGE_BG18,
-  RESOURCE_ID_IMAGE_BG19, RESOURCE_ID_IMAGE_BG20, RESOURCE_ID_IMAGE_BG21,
-  RESOURCE_ID_IMAGE_BG22, RESOURCE_ID_IMAGE_BG23, RESOURCE_ID_IMAGE_BG24,
-  RESOURCE_ID_IMAGE_BG25
+  RESOURCE_ID_IMAGE_BG10
 };
 
 void theme_choice() {

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate all 25 procedural perlin-noise backgrounds (IMAGE_BG1 .. IMAGE_BG25).
+"""Generate the procedural perlin-noise backgrounds (IMAGE_BG1 .. IMAGE_BG<NUM_THEMES>).
 
 Since v1.5.0 every background is procedurally generated (the original
 hand-made art was replaced in favor of these). Five glyph styles, each in
@@ -223,9 +223,15 @@ PALETTES = {
 }
 
 
+# Ship 10 backgrounds: the first two palette variants of all five styles, so
+# every glyph style stays represented while keeping the resource footprint
+# (and shuffle repetition) modest. Bump this to ship more variants.
+NUM_THEMES = 10
+
+
 def themes():
-    """BG(n) is style (n-1)%5, palette variant (n-1)//5, n = 1..25."""
-    for n in range(1, 26):
+    """BG(n) is style (n-1)%5, palette variant (n-1)//5, n = 1..NUM_THEMES."""
+    for n in range(1, NUM_THEMES + 1):
         sname, sfn, scale = STYLES[(n - 1) % 5]
         pp = PALETTES[sname][(n - 1) // 5]
         yield n, sfn, scale, 3000 + n, make_pal(*pp)

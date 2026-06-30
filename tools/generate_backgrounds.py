@@ -223,18 +223,26 @@ PALETTES = {
 }
 
 
-# Ship 10 backgrounds: the first two palette variants of all five styles, so
-# every glyph style stays represented while keeping the resource footprint
-# (and shuffle repetition) modest. Bump this to ship more variants.
-NUM_THEMES = 10
+# Hand-picked selection: the 10 strongest of the 25 style x palette
+# combinations, weighted toward the contour and flow styles (the densest,
+# most legible) while keeping all five styles represented and the hues
+# spread out. Listed by their original index in the 5x5 grid
+# (style = (i-1)%5, palette = (i-1)//5) so the seed -- and therefore the
+# exact artwork -- is preserved; they ship renumbered as BG1..BG10 in this
+# order. Edit this list to change the rotation.
+CHOSEN = [4, 14, 19, 24, 13, 23, 8, 11, 7, 20]
 
 
 def themes():
-    """BG(n) is style (n-1)%5, palette variant (n-1)//5, n = 1..NUM_THEMES."""
-    for n in range(1, NUM_THEMES + 1):
-        sname, sfn, scale = STYLES[(n - 1) % 5]
-        pp = PALETTES[sname][(n - 1) // 5]
-        yield n, sfn, scale, 3000 + n, make_pal(*pp)
+    """Yield (out_index, style_fn, scale, seed, palette) for each shipped BG.
+
+    out_index is the BG number written to disk (1..len(CHOSEN)); the seed is
+    derived from the source index so re-running reproduces the picked art.
+    """
+    for out_index, src in enumerate(CHOSEN, start=1):
+        sname, sfn, scale = STYLES[(src - 1) % 5]
+        pp = PALETTES[sname][(src - 1) // 5]
+        yield out_index, sfn, scale, 3000 + src, make_pal(*pp)
 
 
 def main():

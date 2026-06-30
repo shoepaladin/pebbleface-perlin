@@ -83,15 +83,21 @@ def make_pal(h0, span, s=0.85, v=0.85):
 # ---------------------------------------------------------------------------
 # Glyph primitives.
 # ---------------------------------------------------------------------------
+# Stroke weight for the line-based glyphs. The original art used width=2,
+# which reads as thin specks once the SDK downsamples; 3px strokes stay
+# legible on all three target sizes while still packing to <=16 colors.
+STROKE = 3
+
+
 def glyph_arrow(d, x, y, size, color, angle):
     x2 = x + size * math.cos(angle)
     y2 = y + size * math.sin(angle)
-    d.line([(x, y), (x2, y2)], fill=color, width=2)
+    d.line([(x, y), (x2, y2)], fill=color, width=STROKE)
     for side in (-1, 1):
         a = angle + math.pi + side * 0.5
-        hx = x2 + size * 0.45 * math.cos(a)
-        hy = y2 + size * 0.45 * math.sin(a)
-        d.line([(x2, y2), (hx, hy)], fill=color, width=2)
+        hx = x2 + size * 0.5 * math.cos(a)
+        hy = y2 + size * 0.5 * math.sin(a)
+        d.line([(x2, y2), (hx, hy)], fill=color, width=STROKE)
 
 
 def glyph_box(d, x, y, size, color):
@@ -100,87 +106,93 @@ def glyph_box(d, x, y, size, color):
 
 def glyph_cross(d, x, y, size, color):
     h = size / 2
-    d.line([(x - h, y), (x + h, y)], fill=color, width=2)
-    d.line([(x, y - h), (x, y + h)], fill=color, width=2)
+    d.line([(x - h, y), (x + h, y)], fill=color, width=STROKE)
+    d.line([(x, y - h), (x, y + h)], fill=color, width=STROKE)
 
 
 def glyph_zig(d, x, y, size, color, angle):
     pts = [(x, y)]
     a = angle
-    for _ in range(3):
+    for _ in range(4):
         x += size * 0.6 * math.cos(a)
         y += size * 0.6 * math.sin(a)
         pts.append((x, y))
         a += math.pi / 2 * random.choice((-1, 1))
-    d.line(pts, fill=color, width=2)
+    d.line(pts, fill=color, width=STROKE, joint="curve")
 
 
 # ---------------------------------------------------------------------------
 # The five styles. Each fills a white canvas with noise-driven glyphs.
 # ---------------------------------------------------------------------------
 def style_arrows(d, w, h, noise, rng, pal):
-    step = 13
+    # Tighter grid + lower cutoff so arrows tile the field instead of
+    # scattering as isolated specks; size scales with the noise value.
+    step = 9
     for gy in range(4, h, step):
         for gx in range(4, w, step):
             n = noise[min(gy, h - 1), min(gx, w - 1)]
-            if n < 0.18:
+            if n < 0.10:
                 continue
-            jx, jy = gx + rng.uniform(-3, 3), gy + rng.uniform(-3, 3)
-            glyph_arrow(d, jx, jy, 9, pal(n), n * 4 * math.pi)
+            jx, jy = gx + rng.uniform(-2, 2), gy + rng.uniform(-2, 2)
+            glyph_arrow(d, jx, jy, 8 + n * 4, pal(n), n * 4 * math.pi)
 
 
 def style_boxes(d, w, h, noise, rng, pal):
-    step = 11
+    step = 9
     for gy in range(2, h, step):
         for gx in range(2, w, step):
             n = noise[min(gy, h - 1), min(gx, w - 1)]
-            if n < 0.30:
+            if n < 0.16:
                 continue
-            size = 4 + n * 8
+            size = 5 + n * 8
             glyph_box(d, gx + rng.uniform(-2, 2), gy + rng.uniform(-2, 2), size, pal(n))
-            if n > 0.72:
+            if n > 0.6:
                 glyph_box(d, gx + 3, gy + 3, size - 5, pal(n))
 
 
 def style_flow(d, w, h, noise, rng, pal):
-    for _ in range(int(w * h / 55)):
+    # More, longer streamlines: denser coverage and continuous ribbons
+    # rather than the short 3-segment dashes that read as spots.
+    for _ in range(int(w * h / 22)):
         x, y = rng.uniform(0, w), rng.uniform(0, h)
         n = noise[int(min(y, h - 1)), int(min(x, w - 1))]
-        if n < 0.15:
+        if n < 0.10:
             continue
         c = pal(n)
         a = n * 6 * math.pi
         pts = [(x, y)]
-        for _ in range(3):
+        for _ in range(6):
             x += 5 * math.cos(a)
             y += 5 * math.sin(a)
             nn = noise[int(min(max(y, 0), h - 1)), int(min(max(x, 0), w - 1))]
             a = nn * 6 * math.pi
             pts.append((x, y))
-        d.line(pts, fill=c, width=2)
+        d.line(pts, fill=c, width=STROKE, joint="curve")
 
 
 def style_contours(d, w, h, noise, rng, pal):
-    levels = 14
+    # More levels packs the rings closer together, and each boundary pixel
+    # is drawn as a 2px block so the lines actually read instead of fading.
+    levels = 18
     px = (noise * levels).astype(int)
     for y in range(h - 1):
         for x in range(w - 1):
             if px[y, x] != px[y, x + 1] or px[y, x] != px[y + 1, x]:
-                d.point((x, y), fill=pal(px[y, x] / levels))
+                d.rectangle([x, y, x + 1, y + 1], fill=pal(px[y, x] / levels))
 
 
 def style_stitch(d, w, h, noise, rng, pal):
-    step = 12
+    step = 9
     for gy in range(4, h, step):
         for gx in range(4, w, step):
             n = noise[min(gy, h - 1), min(gx, w - 1)]
-            if n < 0.22:
+            if n < 0.12:
                 continue
             c = pal(n)
             if n > 0.6:
-                glyph_zig(d, gx, gy, 9, c, n * 4 * math.pi)
+                glyph_zig(d, gx, gy, 10, c, n * 4 * math.pi)
             else:
-                glyph_cross(d, gx + rng.uniform(-2, 2), gy + rng.uniform(-2, 2), 7, c)
+                glyph_cross(d, gx + rng.uniform(-2, 2), gy + rng.uniform(-2, 2), 9, c)
 
 
 STYLES = [

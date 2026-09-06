@@ -161,8 +161,8 @@ static void unobstructed_did_change(void *context) {
 }
 
 
-// 10 rotating backgrounds: two palette variants of each of the five
-// procedurally generated perlin-noise styles (see tools/generate_backgrounds.py).
+// 25 generated backgrounds ship in the bundle (BG1-BG25); these 10 are the
+// ones actually in rotation (see tools/generate_backgrounds.py).
 static const uint32_t BG_RESOURCES[] = {
   RESOURCE_ID_IMAGE_BG1,  RESOURCE_ID_IMAGE_BG2,  RESOURCE_ID_IMAGE_BG3,
   RESOURCE_ID_IMAGE_BG4,  RESOURCE_ID_IMAGE_BG5,  RESOURCE_ID_IMAGE_BG6,

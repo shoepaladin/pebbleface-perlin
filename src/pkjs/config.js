@@ -25,7 +25,7 @@ module.exports = [
       {
         "type": "toggle",
         "messageKey": "showbatt",
-        "label": "Show battery percentage",
+        "label": "Show battery percentage at top",
         "defaultValue": true
       }
     ]

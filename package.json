@@ -1,16 +1,16 @@
 {
-    "author": "chops",
+    "author": "Julian H",
     "dependencies": {
         "pebble-clay": "^1.0.4"
     },
     "keywords": [],
-    "name": "perlin",
+    "name": "perlin-v2",
     "pebble": {
         "capabilities": [
             "configurable",
             "health"
         ],
-        "displayName": "perlin",
+        "displayName": "perlin forked v2 ",
         "enableMultiJS": true,
         "messageKeys": {
             "bluetoothvibe": 1,
@@ -25,13 +25,6 @@
         "projectType": "native",
         "resources": {
             "media": [
-                {
-                    "file": "images/pmenu.png",
-                    "menuIcon": true,
-                    "name": "IMAGE_MENU_ICON",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
                 {
                     "file": "images/perlin-gen-0001.png",
                     "name": "IMAGE_BG1",
@@ -65,16 +58,6 @@
                 {
                     "file": "images/perlin-gen-0004.png",
                     "name": "IMAGE_BG4",
-                    "targetPlatforms": [
-                        "basalt",
-                        "chalk",
-                        "emery"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/perlin-gen-0005.png",
-                    "name": "IMAGE_BG5",
                     "targetPlatforms": [
                         "basalt",
                         "chalk",
@@ -133,6 +116,26 @@
                     "type": "bitmap"
                 },
                 {
+                    "file": "images/perlin-gen-0011.png",
+                    "name": "IMAGE_BG11",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0012.png",
+                    "name": "IMAGE_BG12",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
                     "characterRegex": "[0-9]",
                     "file": "fonts/LECO_1976-Regular.ttf",
                     "name": "FONT_LECO_62",
@@ -148,6 +151,153 @@
                     "file": "fonts/LECO_1976-Regular.ttf",
                     "name": "FONT_LECO_20",
                     "type": "font"
+                },
+                {
+                    "file": "images/perlin-gen-0013.png",
+                    "name": "IMAGE_BG13",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0014.png",
+                    "name": "IMAGE_BG14",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0015.png",
+                    "name": "IMAGE_BG15",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0016.png",
+                    "name": "IMAGE_BG16",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0017.png",
+                    "name": "IMAGE_BG17",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0018.png",
+                    "name": "IMAGE_BG18",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0019.png",
+                    "name": "IMAGE_BG19",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0020.png",
+                    "name": "IMAGE_BG20",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0021.png",
+                    "name": "IMAGE_BG21",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0022.png",
+                    "name": "IMAGE_BG22",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0023.png",
+                    "name": "IMAGE_BG23",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0024.png",
+                    "name": "IMAGE_BG24",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0025.png",
+                    "name": "IMAGE_BG25",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/pmenu.png",
+                    "menuIcon": true,
+                    "name": "IMAGE_MENU_ICON",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/perlin-gen-0005.png",
+                    "name": "IMAGE_BG5",
+                    "targetPlatforms": [
+                        "basalt",
+                        "chalk",
+                        "emery"
+                    ],
+                    "type": "bitmap"
                 }
             ]
         },
@@ -162,5 +312,5 @@
             "watchface": true
         }
     },
-    "version": "1.6.0"
+    "version": "1.5.1"
 }
